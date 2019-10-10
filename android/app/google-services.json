@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "442368358232",
+    "firebase_url": "https://winneratwork-818f5.firebaseio.com",
+    "project_id": "winneratwork-818f5",
+    "storage_bucket": "winneratwork-818f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442368358232:android:e16830f555e5597dc1572d",
+        "android_client_info": {
+          "package_name": "com.example.flutter_atwork_frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442368358232-981rs687p06scdd8aama7h794dnfe8dh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHpJFO8R3rKszsMOI1rQZkuSse4ecBT-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442368358232-981rs687p06scdd8aama7h794dnfe8dh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
