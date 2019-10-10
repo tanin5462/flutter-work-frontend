@@ -35,38 +35,48 @@ class _ExpressionListState extends State<ExpressionList> {
     db
         .collection("CustomerAccounts")
         .document(customerKey)
-        .collection("Settings")
-        .document("PositionSetting")
-        .get()
+        .collection("PositionSelected")
+        .where("status", isEqualTo: true)
+        .where("isUse", isEqualTo: true)
+        .getDocuments()
         .then((data) {
-      if (data.exists) {
+      if (data.documents.length > 0) {
         // กรณีมีการตั้งค่า ตำแหน่งไว้
-        int counter = 0;
-        data.data['position'].forEach((element) {
-          db.collection("Position").document(element).get().then((data) {
-            Map<String, dynamic> dataFinal = {
-              'label': data.data['name'],
-              'value': data.documentID
-            };
-            setState(() {
-              options.add(dataFinal);
-              selectedPositionKey = options[0]['value'];
-            });
-            if (counter == 0) {
-              loadSituation();
-            }
-            counter++;
-          });
+        List<Map<String, dynamic>> dataFinal = [];
+        data.documents.forEach((element) {
+          Map<String, dynamic> data = {
+            'label': element.data['name'],
+            'value': element.documentID
+          };
+          dataFinal.add(data);
         });
+        setState(() {
+          options = dataFinal;
+          selectedPositionKey = options[0]['value'];
+          isLoading = false;
+        });
+        print(options);
+        loadSituation();
       } else {
         db
             .collection("Position")
             .where("status", isEqualTo: true)
             .getDocuments()
             .then((data) {
+          List<Map<String, dynamic>> dataFinal = [];
           data.documents.forEach((element) {
-            options.add(element.data);
+            Map<String, dynamic> data = {
+              'label': element.data['name'],
+              'value': element.documentID
+            };
+            dataFinal.add(data);
           });
+          setState(() {
+            options = dataFinal;
+            selectedPositionKey = options[0]['value'];
+            isLoading = false;
+          });
+          loadSituation();
         });
       }
     });

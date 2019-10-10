@@ -9,6 +9,7 @@ import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'bottomnavigatorbar.dart';
 import 'login.dart';
 import 'main_page.dart';
 
@@ -385,80 +386,7 @@ class _ExpressionState extends State<Expression> {
             )
           ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: currentMenu,
-          selectedItemColor: Colors.teal,
-          items: [
-            BottomNavigationBarItem(
-              backgroundColor: Colors.black87,
-              icon: Icon(
-                FontAwesomeIcons.idCard,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'คำศัพท์',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            BottomNavigationBarItem(
-              backgroundColor: Colors.black87,
-              icon: Icon(
-                FontAwesomeIcons.commentDots,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'ประโยค',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            BottomNavigationBarItem(
-              backgroundColor: Colors.black87,
-              icon: Icon(
-                FontAwesomeIcons.comments,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'สนทนา',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            BottomNavigationBarItem(
-              backgroundColor: Colors.black87,
-              icon: Icon(
-                FontAwesomeIcons.userCog,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'ผู้ใช้',
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-          ],
-          onTap: (index) {
-            setState(() {
-              currentMenu = index;
-            });
-
-            if (index == 0) {
-              MaterialPageRoute materialPageRoute = MaterialPageRoute(
-                  builder: (BuildContext context) => MyMainPage("0"));
-              Navigator.of(context).pushAndRemoveUntil(
-                  materialPageRoute, (Route<dynamic> route) => false);
-            } else if (index == 1) {
-              Navigator.of(context).pop();
-            } else if (index == 2) {
-              MaterialPageRoute materialPageRoute = MaterialPageRoute(
-                  builder: (BuildContext context) => MyMainPage("2"));
-              Navigator.of(context).pushAndRemoveUntil(
-                  materialPageRoute, (Route<dynamic> route) => false);
-            } else if (index == 3) {
-              MaterialPageRoute materialPageRoute = MaterialPageRoute(
-                  builder: (BuildContext context) => MyMainPage("3"));
-              Navigator.of(context).pushAndRemoveUntil(
-                  materialPageRoute, (Route<dynamic> route) => false);
-            }
-          },
-        ),
+        bottomNavigationBar: MyBottomNavBar(1),
         body: Stack(
           children: <Widget>[
             backgroundImage(),

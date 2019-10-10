@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_atwork_frontend/screens/userInfo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:loading/loading.dart';
@@ -50,15 +51,17 @@ class _MyUserState extends State<MyUser> {
         .getDocuments()
         .then((dataPosition) {
       if (dataPosition.documents.length > 0) {
-        print("NotEmpty");
+        // มีการตั้งค่าบทเรียนไว้อยู่แล้ว ดึงจากตารางที่user ตั้งไว้
+        // print("NotEmpty");
         List<Map<String, dynamic>> dataFinal = [];
         dataPosition.documents.forEach((element) {
-          Map<String, dynamic> data = {};
-          data.addAll({'key': element.documentID});
-          data.addAll(element.data);
-          dataFinal.add(data);
+          if (element.data['status'] == true) {
+            Map<String, dynamic> data = {};
+            data.addAll({'key': element.documentID});
+            data.addAll(element.data);
+            dataFinal.add(data);
+          }
         });
-        print(dataFinal);
         setState(() {
           positionSelected = dataPosition.documents.first.data['position'];
           position = dataFinal;
@@ -66,7 +69,8 @@ class _MyUserState extends State<MyUser> {
         });
         // });
       } else {
-        print("Empty");
+        // print("Empty");
+        // ยังไม่มีการตั้งค่า เลือกบทเรียนไว้
         db
             .collection("Position")
             .where("status", isEqualTo: true)
@@ -79,7 +83,7 @@ class _MyUserState extends State<MyUser> {
             dataPos.addAll(element.data);
             if (element.documentID == customerPositionKeyDefault) {
               dataPos.addAll({'isUse': true});
-
+              // ทำการเพิ่มเข้าไปในการตั้งค่าบทเรียนอัตโนมัติ โดยบทเรียน Default ตอนสมัครจะถูกตั้งสถานะให้เป็นใช้งาน
               db
                   .collection("CustomerAccounts")
                   .document(customerKey)
@@ -89,6 +93,7 @@ class _MyUserState extends State<MyUser> {
                     dataPos,
                   );
             } else {
+              // ทำการเพิ่มเข้าไปในการตั้งค่าบทเรียนอัตโนมัติ โดยบทเรียนนอกเหนือจาก Default ตอนสมัครจะถูกตั้งสถานะให้เป็นไม่ใช้งาน
               dataPos.addAll({'isUse': false});
               db
                   .collection("CustomerAccounts")
@@ -135,30 +140,37 @@ class _MyUserState extends State<MyUser> {
   }
 
   Widget showUsername() {
-    return Container(
-      padding: EdgeInsets.all(20.0),
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.white, width: 3),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              customerName + " " + customerSurname,
-              style: TextStyle(fontSize: 20, color: Colors.white),
-            ),
+    return GestureDetector(
+      onTap: () {
+        MaterialPageRoute materialPageRoute =
+            MaterialPageRoute(builder: (BuildContext context) => UserInfo());
+        Navigator.of(context).push(materialPageRoute);
+      },
+      child: Container(
+        padding: EdgeInsets.all(20.0),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.white, width: 3),
           ),
-          IconButton(
-            icon: Icon(
-              FontAwesomeIcons.chevronRight,
-              color: Colors.teal,
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                customerName + " " + customerSurname,
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
             ),
-            onPressed: () {},
-          )
-        ],
+            IconButton(
+              icon: Icon(
+                FontAwesomeIcons.chevronRight,
+                color: Colors.teal,
+              ),
+              onPressed: () {},
+            )
+          ],
+        ),
       ),
     );
   }
@@ -196,7 +208,7 @@ class _MyUserState extends State<MyUser> {
           Switch(
             onChanged: (bool value) {
               setState(() {
-                position[index]['status'] = value;
+                position[index]['isUse'] = value;
               });
               db
                   .collection("CustomerAccounts")
@@ -205,7 +217,7 @@ class _MyUserState extends State<MyUser> {
                   .document(position[index]['key'])
                   .setData(position[index]);
             },
-            value: position[index]['status'],
+            value: position[index]['isUse'],
           ),
         ],
       ),
