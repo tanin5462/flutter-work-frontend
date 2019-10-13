@@ -69,7 +69,10 @@ class _MyBottomNavBarState extends State<MyBottomNavBar> {
           Navigator.of(context).pushAndRemoveUntil(
               materialPageRoute, (Route<dynamic> route) => false);
         } else if (index == 1) {
-          Navigator.of(context).pop();
+          MaterialPageRoute materialPageRoute = MaterialPageRoute(
+              builder: (BuildContext context) => MyMainPage("1"));
+          Navigator.of(context).pushAndRemoveUntil(
+              materialPageRoute, (Route<dynamic> route) => false);
         } else if (index == 2) {
           MaterialPageRoute materialPageRoute = MaterialPageRoute(
               builder: (BuildContext context) => MyMainPage("2"));

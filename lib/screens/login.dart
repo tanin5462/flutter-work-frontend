@@ -46,8 +46,11 @@ class _MyLoginState extends State<MyLogin> {
         pref.setString('customerSurname', res.documents.first.data['surname']);
         pref.setString('customerSex', res.documents.first.data['sex']);
         pref.setString('customerUsername', res.documents.first.data['tel']);
+        pref.setString('customerEmail', res.documents.first.data['email']);
         pref.setString('customerPositionKeyDefault',
             res.documents.first.data['positionKey']);
+        pref.setString(
+            'customerPassword', res.documents.first.data['password']);
 
         MaterialPageRoute materialPageRoute = MaterialPageRoute(
             builder: (BuildContext context) => MyMainPage("0"));

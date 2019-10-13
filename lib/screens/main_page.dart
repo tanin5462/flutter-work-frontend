@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_atwork_frontend/screens/dialog.dart';
 import 'package:flutter_atwork_frontend/screens/dialogList.dart';
 import 'package:flutter_atwork_frontend/screens/expressionList.dart';
 import 'package:flutter_atwork_frontend/screens/login.dart';
@@ -33,7 +32,7 @@ class _MyMainPageState extends State<MyMainPage> {
       showWidget = ExpressionList();
       currentMenu = 1;
     } else if (widget.showCurrentPage == "2") {
-      showWidget = MyDialog();
+      showWidget = MyDialogList();
       currentMenu = 2;
       appBarTitle = "สนทนา";
     } else if (widget.showCurrentPage == "3") {

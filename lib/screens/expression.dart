@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bottomnavigatorbar.dart';
 import 'login.dart';
-import 'main_page.dart';
 
 class Expression extends StatefulWidget {
   final String situationKey;

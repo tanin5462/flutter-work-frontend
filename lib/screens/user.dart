@@ -130,6 +130,12 @@ class _MyUserState extends State<MyUser> {
           child: Column(
             children: <Widget>[
               showUsername(),
+              Padding(
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: Divider(
+                  color: Colors.white,
+                ),
+              ),
               textHeader(),
               for (var i = 0; i < position.length; i++) showPosition(i),
             ],
@@ -149,11 +155,11 @@ class _MyUserState extends State<MyUser> {
       child: Container(
         padding: EdgeInsets.all(20.0),
         width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.white, width: 3),
-          ),
-        ),
+        // decoration: BoxDecoration(
+        //   border: Border(
+        //     bottom: BorderSide(color: Colors.white, width: 0.5),
+        //   ),
+        // ),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -162,13 +168,10 @@ class _MyUserState extends State<MyUser> {
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
             ),
-            IconButton(
-              icon: Icon(
-                FontAwesomeIcons.chevronRight,
-                color: Colors.teal,
-              ),
-              onPressed: () {},
-            )
+            Icon(
+              FontAwesomeIcons.chevronRight,
+              color: Colors.teal,
+            ),
           ],
         ),
       ),
@@ -191,12 +194,12 @@ class _MyUserState extends State<MyUser> {
 
   Widget showPosition(int index) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.white, width: 3),
-        ),
-      ),
-      padding: EdgeInsets.all(20.0),
+      // decoration: BoxDecoration(
+      //     // border: Border(
+      //     //   bottom: BorderSide(color: Colors.white, width: 0.5),
+      //     // ),
+      //     ),
+      padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 8.0),
       child: Row(
         children: <Widget>[
           Expanded(

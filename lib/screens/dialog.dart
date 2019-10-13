@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_atwork_frontend/screens/loading.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'bottomnavigatorbar.dart';
 import 'login.dart';
 import 'videoplayer.dart';
 
@@ -264,6 +265,7 @@ class _MyDialogState extends State<MyDialog> {
           )
         ],
       ),
+      bottomNavigationBar: MyBottomNavBar(2),
       body: SafeArea(
         child: !isLoading
             ? Column(
