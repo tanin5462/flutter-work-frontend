@@ -55,7 +55,6 @@ class _ExpressionListState extends State<ExpressionList> {
           selectedPositionKey = options[0]['value'];
           isLoading = false;
         });
-        print(options);
         loadSituation();
       } else {
         db
