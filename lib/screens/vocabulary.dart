@@ -21,7 +21,7 @@ class _MyVocabularyState extends State<MyVocabulary> {
 
   // VARIABLE
   String resultTextShow = "ถูกต้อง";
-  bool isLoading = false;
+  bool isLoading = true;
   bool isShowDescription = false;
   Firestore db = Firestore.instance;
   List<Map<String, dynamic>> vocabs = [];
@@ -31,6 +31,8 @@ class _MyVocabularyState extends State<MyVocabulary> {
   Future<void> loadVocabulary() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String userId = prefs.getString("customerKey");
+    List<String> positionSelected = prefs.getStringList("positionSelected");
+
     setState(() {
       isLoading = true;
     });
@@ -50,59 +52,24 @@ class _MyVocabularyState extends State<MyVocabulary> {
       });
       choicesTemp.shuffle();
       db
-          .collection("CustomerAccounts")
-          .document(userId)
           .collection("Vocabulary")
+          .document("server")
+          .collection("data")
           .getDocuments()
           .then((vocabData) {
-        vocabData.documents.forEach((e) async {
-          List choices = List(3);
-          // เช็คว่า อยู่ในตำแหน่งที่ User เลือกไว้หรือไม่
-          if (e.data['positionKey'] != "ทั่วไป") {
-            await db
-                .collection("CustomerAccounts")
-                .document(userId)
-                .collection("PositionSelected")
-                .document(e.data['positionKey'])
-                .get()
-                .then((c) {
-              if (c.exists) {
-                final _random = new Random();
-                int next(int min, int max) => min + _random.nextInt(max - min);
-                int randomType = next(1, 4);
-                // 1.โจทย์ศัพท์เสียง คำตอบ คำแปลไทย
-                // 2.โจทย์คำแปลไทย คำตอบ ศัพท์อังกฤษ
-                // 3.โจทย์คำศัพท์อังกฤษ คำตอบ คำแปลไทย
-                Map<String, dynamic> data = {};
-                data.addAll({'key': e.documentID});
-                data.addAll(e.data);
-                for (var i = 0; i < 3; i++) {
-                  if (i == 0) {
-                    choices[i] = data;
-                  } else {
-                    choices[i] = choicesTemp[i];
-                  }
-                }
-                choices.shuffle();
-                data.addAll({'type': randomType});
-                data.addAll({'choices': choices});
-                setState(() {
-                  vocabs.add(data);
-                });
-              }
-            });
-          } else {
+        vocabData.documents.forEach((e) {
+          // ถ้าเป็นคำศัพท์ที่อยู่ในตำแหน่งที่ User เลือกไว้
+          if (positionSelected.contains(e.data['positionKey'])) {
+            List choices = List(3);
             final _random = new Random();
             int next(int min, int max) => min + _random.nextInt(max - min);
             int randomType = next(1, 4);
             // 1.โจทย์ศัพท์เสียง คำตอบ คำแปลไทย
             // 2.โจทย์คำแปลไทย คำตอบ ศัพท์อังกฤษ
             // 3.โจทย์คำศัพท์อังกฤษ คำตอบ คำแปลไทย
-
             Map<String, dynamic> data = {};
             data.addAll({'key': e.documentID});
             data.addAll(e.data);
-
             for (var i = 0; i < 3; i++) {
               if (i == 0) {
                 choices[i] = data;
@@ -113,20 +80,17 @@ class _MyVocabularyState extends State<MyVocabulary> {
             choices.shuffle();
             data.addAll({'type': randomType});
             data.addAll({'choices': choices});
-
             setState(() {
               vocabs.add(data);
             });
           }
-          setState(() {
-            vocabs.shuffle();
-            isLoading = false;
-          });
+        });
+        setState(() {
+          vocabs.shuffle();
+          isLoading = false;
         });
       });
     });
-
-    // load new vocabulary
   }
 
   Future<void> play(url) async {

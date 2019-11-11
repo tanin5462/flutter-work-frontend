@@ -58,6 +58,10 @@ class _MyLoginState extends State<MyLogin> {
             materialPageRoute, (Route<dynamic> route) => false);
       } else {
         // User ไม่ถูกต้อง
+        print("Username Password ไม่ถูกต้อง");
+        setState(() {
+          isLoading = false;
+        });
       }
     });
   }

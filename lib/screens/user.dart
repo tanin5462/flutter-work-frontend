@@ -38,6 +38,18 @@ class _MyUserState extends State<MyUser> {
     getPositionSelected();
   }
 
+  Future<void> setPositionSelected() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<dynamic> positionSelected = position.map((item) {
+      if (item['isUse'] == true) return item['key'];
+    }).toList();
+    positionSelected.removeWhere((value) => value == null);
+
+    var newPositionSelected = new List<String>.from(positionSelected);
+
+    prefs.setStringList("positionSelected", newPositionSelected);
+  }
+
   Future<void> getPositionSelected() async {
     setState(() {
       isLoading = true;
@@ -52,7 +64,6 @@ class _MyUserState extends State<MyUser> {
         .then((dataPosition) {
       if (dataPosition.documents.length > 0) {
         // มีการตั้งค่าบทเรียนไว้อยู่แล้ว ดึงจากตารางที่user ตั้งไว้
-        // print("NotEmpty");
         List<Map<String, dynamic>> dataFinal = [];
         dataPosition.documents.forEach((element) {
           if (element.data['status'] == true) {
@@ -69,7 +80,6 @@ class _MyUserState extends State<MyUser> {
         });
         // });
       } else {
-        // print("Empty");
         // ยังไม่มีการตั้งค่า เลือกบทเรียนไว้
         db
             .collection("Position")
@@ -219,6 +229,8 @@ class _MyUserState extends State<MyUser> {
                   .collection("PositionSelected")
                   .document(position[index]['key'])
                   .setData(position[index]);
+
+              setPositionSelected();
             },
             value: position[index]['isUse'],
           ),
