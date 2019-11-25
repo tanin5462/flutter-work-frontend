@@ -5,6 +5,7 @@ import 'package:flutter_atwork_frontend/screens/login.dart';
 import 'package:flutter_atwork_frontend/screens/user.dart';
 import 'package:flutter_atwork_frontend/screens/vocabulary.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyMainPage extends StatefulWidget {
   final String showCurrentPage;
@@ -42,6 +43,12 @@ class _MyMainPageState extends State<MyMainPage> {
     }
   }
 
+  Future<void> clearPrefs() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    print("SharedPrefs is Cleared");
+    pref.clear();
+  }
+
   // MY WIDGET
   Widget backgroundImage() {
     return Container(
@@ -66,6 +73,7 @@ class _MyMainPageState extends State<MyMainPage> {
               onPressed: () {
                 MaterialPageRoute materialPageRoute = MaterialPageRoute(
                     builder: (BuildContext context) => MyLogin());
+                clearPrefs();
                 Navigator.of(context).push(materialPageRoute);
               },
               icon: Icon(FontAwesomeIcons.signOutAlt),

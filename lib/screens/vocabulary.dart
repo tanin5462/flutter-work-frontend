@@ -16,6 +16,7 @@ class _MyVocabularyState extends State<MyVocabulary> {
   @override
   void initState() {
     loadVocabulary();
+    resultTextShow = "200M.";
     return super.initState();
   }
 
@@ -30,8 +31,11 @@ class _MyVocabularyState extends State<MyVocabulary> {
   // FUTURE
   Future<void> loadVocabulary() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String userId = prefs.getString("customerKey");
     List<String> positionSelected = prefs.getStringList("positionSelected");
+    if (!prefs.containsKey('positionSelected')) {
+// กรณียังไม่เคยมีการตั้งค่าหรือเลือกตำแหน่งไว้
+      positionSelected = [prefs.getString('customerPositionKeyDefault')];
+    }
 
     setState(() {
       isLoading = true;
@@ -44,6 +48,7 @@ class _MyVocabularyState extends State<MyVocabulary> {
         .getDocuments()
         .then((vchoices) {
       List<Map<String, dynamic>> choicesTemp = [];
+      List<Map<String, dynamic>> choicesTempCopy = [];
       vchoices.documents.forEach((v) {
         Map<String, dynamic> dataChoices = {};
         dataChoices.addAll({'key': v.documentID});
@@ -51,6 +56,8 @@ class _MyVocabularyState extends State<MyVocabulary> {
         choicesTemp.add(dataChoices);
       });
       choicesTemp.shuffle();
+      choicesTempCopy = choicesTemp;
+
       db
           .collection("Vocabulary")
           .document("server")
@@ -70,6 +77,7 @@ class _MyVocabularyState extends State<MyVocabulary> {
             Map<String, dynamic> data = {};
             data.addAll({'key': e.documentID});
             data.addAll(e.data);
+            choicesTempCopy.removeWhere((item) => item['key'] == data['key']);
             for (var i = 0; i < 3; i++) {
               if (i == 0) {
                 choices[i] = data;
@@ -78,6 +86,7 @@ class _MyVocabularyState extends State<MyVocabulary> {
               }
             }
             choices.shuffle();
+            choicesTemp.shuffle();
             data.addAll({'type': randomType});
             data.addAll({'choices': choices});
             setState(() {
@@ -266,26 +275,23 @@ class _MyVocabularyState extends State<MyVocabulary> {
 
   Widget answerShow(int index, int type) {
     return GestureDetector(
-      onTap: () {
-        // ฟังก์ชันเช็คคำตอบ
-        String questionKey = vocabs[currentQuestion]['key'];
-        String choiceKey = vocabs[currentQuestion]['choices'][index]['key'];
-        checkAnswer(questionKey, choiceKey);
-        // เช็คคำตอบ
-      },
-      child: Stack(
-        children: <Widget>[
-          bgButton(),
-          textAnswerShow(index, type),
-        ],
-      ),
-    );
+        onTap: () {
+          // ฟังก์ชันเช็คคำตอบ
+          String questionKey = vocabs[currentQuestion]['key'];
+          String choiceKey = vocabs[currentQuestion]['choices'][index]['key'];
+          checkAnswer(questionKey, choiceKey);
+          // เช็คคำตอบ
+        },
+        child: Container(
+          margin: EdgeInsets.only(bottom: 10.0),
+          child: Card(elevation: 10.0, child: textAnswerShow(index, type)),
+        ));
   }
 
   Widget textAnswerShow(int index, int type) {
     return Container(
+      padding: EdgeInsets.all(10.0),
       alignment: Alignment.center,
-      height: MediaQuery.of(context).size.height * 0.08,
       width: MediaQuery.of(context).size.width,
       child: type == 1 || type == 3
           ? Text(
@@ -319,11 +325,12 @@ class _MyVocabularyState extends State<MyVocabulary> {
           play(vocabs[currentQuestion]['url']);
         }
       },
-      child: Stack(
-        children: <Widget>[
-          bgQuestionShow(),
-          questionText(),
-        ],
+      child: Card(
+        color: Color.fromRGBO(20, 20, 20, 1.0),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: questionText(),
+        ),
       ),
     );
   }
@@ -336,7 +343,6 @@ class _MyVocabularyState extends State<MyVocabulary> {
         },
         child: Container(
           alignment: Alignment.center,
-          height: MediaQuery.of(context).size.height * 0.1,
           width: MediaQuery.of(context).size.width,
           child: Icon(
             FontAwesomeIcons.volumeUp,
@@ -347,7 +353,6 @@ class _MyVocabularyState extends State<MyVocabulary> {
     } else if (vocabs[currentQuestion]['type'] == 2) {
       return Container(
         alignment: Alignment.center,
-        height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width,
         child: Text(
           vocabs[currentQuestion]['meaning'],
@@ -357,7 +362,6 @@ class _MyVocabularyState extends State<MyVocabulary> {
     } else {
       return Container(
         alignment: Alignment.center,
-        height: MediaQuery.of(context).size.height * 0.1,
         width: MediaQuery.of(context).size.width,
         child: Text(
           vocabs[currentQuestion]['vocab'],
@@ -365,19 +369,6 @@ class _MyVocabularyState extends State<MyVocabulary> {
         ),
       );
     }
-  }
-
-  Widget bgQuestionShow() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.1,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("images/1.png"),
-          fit: BoxFit.fill,
-        ),
-      ),
-    );
   }
 
   Widget showDescription() {
@@ -414,11 +405,19 @@ class _MyVocabularyState extends State<MyVocabulary> {
   Widget nextButton() {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          isShowDescription = false;
-          currentQuestion++;
-          resultTextShow = "350m.";
-        });
+        if (currentQuestion < vocabs.length - 1) {
+          setState(() {
+            isShowDescription = false;
+            currentQuestion++;
+            resultTextShow = "350m.";
+          });
+        } else {
+          setState(() {
+            currentQuestion = 0;
+            isShowDescription = false;
+            vocabs.shuffle();
+          });
+        }
       },
       child: Stack(
         children: <Widget>[
@@ -440,76 +439,10 @@ class _MyVocabularyState extends State<MyVocabulary> {
   Widget descriptionTextShowType2and3() {
     return Container(
       margin: EdgeInsets.only(top: 10),
-      child: Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.35,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("images/1.png"),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(10.0),
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    children: <Widget>[
-                      for (var i = 0;
-                          i < vocabs[currentQuestion]['choices'].length;
-                          i++)
-                        Container(
-                          padding: EdgeInsets.all(15.0),
-                          child: Column(
-                            children: <Widget>[
-                              Text(
-                                vocabs[currentQuestion]['choices'][i]['vocab'],
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                              Text(
-                                vocabs[currentQuestion]['choices'][i]
-                                    ['meaning'],
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget descriptionTextShowType1() {
-    return Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.4,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("images/1.png"),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        Container(
+      child: Card(
+        elevation: 10.0,
+        child: Container(
+          color: Color.fromRGBO(20, 20, 20, 0.8),
           alignment: Alignment.center,
           padding: EdgeInsets.all(10.0),
           width: MediaQuery.of(context).size.width,
@@ -519,32 +452,73 @@ class _MyVocabularyState extends State<MyVocabulary> {
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    Center(
-                      child: Container(
-                        padding: EdgeInsets.all(5.0),
+                    for (var i = 0;
+                        i < vocabs[currentQuestion]['choices'].length;
+                        i++)
+                      Container(
+                        padding: EdgeInsets.all(15.0),
                         child: Column(
                           children: <Widget>[
                             Text(
-                              vocabs[currentQuestion]['vocab'],
+                              vocabs[currentQuestion]['choices'][i]['vocab'],
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),
                             ),
                             Text(
-                              vocabs[currentQuestion]['meaning'],
+                              vocabs[currentQuestion]['choices'][i]['meaning'],
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           ],
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
             ],
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget descriptionTextShowType1() {
+    return Card(
+      elevation: 10.0,
+      child: Container(
+        color: Color.fromRGBO(20, 20, 20, 0.8),
+        alignment: Alignment.center,
+        padding: EdgeInsets.all(10.0),
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  Center(
+                    child: Container(
+                      padding: EdgeInsets.all(5.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            vocabs[currentQuestion]['vocab'],
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                          Text(
+                            vocabs[currentQuestion]['meaning'],
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
